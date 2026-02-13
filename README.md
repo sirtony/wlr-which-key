@@ -25,7 +25,7 @@ The config file is located at: `$XDG_CONFIG_HOME/wlr-which-key/config.toml` or `
 
 Run `wlr-which-key --help` for more info.
 
-Keybindings may be single characters (e.g. `a`, `B`) or [xkb key labels](https://github.com/xkbcommon/libxkbcommon/blob/master/include/xkbcommon/xkbcommon-keysyms.h) (without the `XKB_KEY_` prefix, e.g. `Return`, `Insert`). Ctrl, Alt, and Mod4/Logo modifiers are supported (like `Ctrl+Return` or `Ctrl+Alt+a` or `Mod4+Return` or `Logo+Return`). A `key` may also be a list of strings, in which case a keybinding will match if any of the keys match (e.g. `key: ["Left", "h"]`) will match both left arrow and 'h'.
+Keybindings may be single characters (e.g. `a`, `B`) or [xkb key labels](https://github.com/xkbcommon/libxkbcommon/blob/master/include/xkbcommon/xkbcommon-keysyms.h) (without the `XKB_KEY_` prefix, e.g. `Return`, `Insert`). Ctrl, Alt,  Shift, and Mod4/Logo modifiers are supported (like `Ctrl+Alt+Shift+q` or `Ctrl+Return` or `Ctrl+Alt+a` or `Mod4+Return` or `Logo+Return`). A `key` may also be a list of strings, in which case a keybinding will match if any of the keys match (e.g. `key: ["Left", "h"]`) will match both left arrow and `h`.
 
 When executed a command will normally end the `wlr_which_key` process. If you want certain commands to keep the UI open after they execute then
 configure those specific commands with (`keep_open = true`).
@@ -57,6 +57,11 @@ accent = "#00bcd4"
 [app]
 anchor = "center" # One of center, left, right, top, bottom, bottom-left, top-left, etc.
 namespace = "wlr_which_key" # namespace to use for the layer shell surface
+
+# the key(s) or key sequence(s) that will exit the app
+# by default, Escape is used if this value isn't present.
+# in this example we'll add 'q' to the list of exit keys
+quit_key = ["Escape", "q"]
 
 # Permits key bindings that conflict with compositor key bindings.
 # Default is `false`.
