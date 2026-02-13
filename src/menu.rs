@@ -265,7 +265,12 @@ impl Menu {
         Ok(())
     }
 
-    pub fn get_action(&self, modifiers: ModifierState, sym: xkb::Keysym) -> Option<Action> {
+    pub fn get_action(
+        &self,
+        config: &Config,
+        modifiers: ModifierState,
+        sym: xkb::Keysym,
+    ) -> Option<Action> {
         let page = &self.pages[self.cur_page];
 
         let action = page.columns.iter().find_map(|col| {
@@ -278,10 +283,13 @@ impl Menu {
         }
 
         match sym {
-            xkb::Keysym::Escape => {
-                return Some(Action::Quit);
-            }
-            xkb::Keysym::bracketleft | xkb::Keysym::g if modifiers.mod_ctrl => {
+            kb if config
+                .app
+                .quit_key
+                .as_ref()
+                .map(|k| k.matches(kb, modifiers))
+                .unwrap_or(false) =>
+            {
                 return Some(Action::Quit);
             }
             xkb::Keysym::BackSpace => {
@@ -299,14 +307,18 @@ impl Menu {
         self.cur_page = page;
     }
 
-    pub fn navigate_to_key_sequence(&mut self, key_sequence: &str) -> Result<Option<Action>> {
+    pub fn navigate_to_key_sequence(
+        &mut self,
+        config: &Config,
+        key_sequence: &str,
+    ) -> Result<Option<Action>> {
         let mut last_action = None;
         for key_str in key_sequence.split_whitespace() {
             if let Some((last_key_str, _action)) = &last_action {
                 bail!("Key '{last_key_str}' leads to a command, but more keys follow in sequence");
             }
             let key = SingleKey::from_str(key_str).map_err(Error::msg)?;
-            match self.get_action(key.modifiers, key.keysym) {
+            match self.get_action(config, key.modifiers, key.keysym) {
                 Some(Action::Submenu(submenu_page)) => self.set_page(submenu_page),
                 Some(action) => last_action = Some((key_str, action)),
                 None => bail!("Key '{}' not found in current menu", key_str),

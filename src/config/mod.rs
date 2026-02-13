@@ -7,12 +7,14 @@ use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use smart_default::SmartDefault;
 use std::collections::HashMap;
+use std::str::FromStr;
 
 pub use self::anchor::ConfigAnchor;
 pub use self::entry::Entry;
 pub use self::font::Font;
 pub use self::namespace::Namespace;
 use crate::color::Color;
+use crate::key::Key;
 
 #[derive(Deserialize, SmartDefault)]
 #[serde(deny_unknown_fields, default)]
@@ -60,6 +62,9 @@ pub struct Theme {
 #[serde(deny_unknown_fields, default)]
 pub struct App {
     pub anchor: ConfigAnchor,
+
+    #[default(Some(crate::key::SingleKey::from_str("Escape").unwrap().into()))]
+    pub quit_key: Option<Key>,
 
     #[default(Namespace::new(c"wlr_which_key".to_owned()))]
     pub namespace: Namespace,

@@ -57,7 +57,7 @@ fn main() -> anyhow::Result<()> {
     let mut menu = menu::Menu::new(&args.menu, &config)?;
 
     if let Some(initial_keys) = &args.initial_keys
-        && let Some(initial_action) = menu.navigate_to_key_sequence(initial_keys)?
+        && let Some(initial_action) = menu.navigate_to_key_sequence(&config, initial_keys)?
     {
         match initial_action {
             menu::Action::Submenu(_) => unreachable!(),
@@ -384,27 +384,29 @@ impl KeyboardHandler for State {
     fn key_presed(&mut self, conn: &mut Connection<Self>, event: KeyboardEvent) {
         self.kbd_repeat = None;
         let modifiers = ModifierState::from_xkb_state(&event.xkb_state);
-        let action = if let Some(action) = self.menu.get_action(modifiers, event.keysym) {
-            Some(action)
-        } else if self.config.app.auto_kbd_layout {
-            let mask = XkbMaskState::new(&event.xkb_state);
-            let mut action = None;
-            // Try each layout
-            for layout in 0..event.xkb_state.get_keymap().num_layouts() {
-                mask.with_locked_layout(layout).apply(&event.xkb_state);
-                if let Some(a) = self
-                    .menu
-                    .get_action(modifiers, event.xkb_state.key_get_one_sym(event.keycode))
-                {
-                    action = Some(a);
-                    break;
+        let action =
+            if let Some(action) = self.menu.get_action(&self.config, modifiers, event.keysym) {
+                Some(action)
+            } else if self.config.app.auto_kbd_layout {
+                let mask = XkbMaskState::new(&event.xkb_state);
+                let mut action = None;
+                // Try each layout
+                for layout in 0..event.xkb_state.get_keymap().num_layouts() {
+                    mask.with_locked_layout(layout).apply(&event.xkb_state);
+                    if let Some(a) = self.menu.get_action(
+                        &self.config,
+                        modifiers,
+                        event.xkb_state.key_get_one_sym(event.keycode),
+                    ) {
+                        action = Some(a);
+                        break;
+                    }
                 }
-            }
-            mask.apply(&event.xkb_state); // Restore the state
-            action
-        } else {
-            None
-        };
+                mask.apply(&event.xkb_state); // Restore the state
+                action
+            } else {
+                None
+            };
         if let Some(action) = action {
             if let Some(repeat) = event.repeat_info {
                 self.kbd_repeat = Some((Timer::new(repeat.delay, repeat.interval), action.clone()));
