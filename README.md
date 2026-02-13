@@ -7,7 +7,9 @@ Keymap manager for wlroots-based compositors. Inspired by [which-key.nvim](https
 ### From Source
 
 ```sh
-cargo install wlr-which-key --locked
+git clone --depth 1 https://github.com/sirtony/wlr-which-key.git
+cd wlr-which-key
+cargo install --path . --locked
 ```
 
 ## Usage
