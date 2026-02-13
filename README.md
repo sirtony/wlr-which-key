@@ -2,6 +2,10 @@
 
 Keymap manager for wlroots-based compositors. Inspired by [which-key.nvim](https://github.com/folke/which-key.nvim).
 
+This fork aims to expand the original's functionality, appearance, and configurability. It also swaps the YAML config for TOML and unifies the config into one file.
+
+This fork is not meant to be a commentary on the original project, but rather a modification of the original project to better suit my needs and preferences.
+
 ## Installation
 
 ### From Source
