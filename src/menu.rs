@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use anyhow::{Error, Result, bail};
+use anyhow::{Error, Result, anyhow, bail};
 use pangocairo::{cairo, pango};
 use wayrs_utils::keyboard::xkb;
 
@@ -14,6 +14,7 @@ pub struct Menu {
     pages: Vec<MenuPage>,
     cur_page: usize,
     separator: ComputedText,
+    indicator: ComputedText,
 }
 
 struct MenuPage {
@@ -43,22 +44,24 @@ pub enum Action {
 }
 
 impl Menu {
-    pub fn new(config: &Config) -> Result<Self> {
+    pub fn new(menu: &str, config: &Config) -> Result<Self> {
         let context = pango::Context::new();
         let fontmap = pangocairo::FontMap::new();
         context.set_font_map(Some(&fontmap));
 
+        let font = config.theme.font.as_font_desc();
         let mut this = Self {
             pages: Vec::new(),
             cur_page: 0,
-            separator: ComputedText::new(
-                &config.theme.separator,
-                &context,
-                &config.theme.font.as_font_desc(),
-            ),
+            separator: ComputedText::new(&config.theme.separator, &context, &font),
+            indicator: ComputedText::new(&config.theme.submenu_indicator, &context, &font),
         };
 
-        this.push_page(&context, &config.menu, config, None)?;
+        let menu = config
+            .menu
+            .get(menu)
+            .ok_or_else(|| anyhow!("Menu '{menu}' not found in configuration"))?;
+        this.push_page(&context, &menu, config, None)?;
 
         Ok(this)
     }
@@ -99,20 +102,15 @@ impl Menu {
                     val_comp: ComputedText::new(desc, context, &font),
                     key: key.clone(),
                 },
-                config::Entry::Recursive {
-                    key,
-                    submenu: entries,
-                    desc,
-                } => {
-                    let new_page = self.push_page(context, entries, config, Some(cur_page))?;
+                config::Entry::Recursive { key, submenu, desc } => {
+                    let submenu = config.menu.get(submenu).ok_or_else(|| {
+                        anyhow!("Submenu '{}' not found in configuration", submenu)
+                    })?;
+                    let new_page = self.push_page(context, &submenu, config, Some(cur_page))?;
                     MenuItem {
                         action: Action::Submenu(new_page),
                         key_comp: ComputedText::new(key.to_string(), context, &font),
-                        val_comp: ComputedText::new(
-                            format!("{}{desc}", config.theme.submenu_indicator),
-                            context,
-                            &font,
-                        ),
+                        val_comp: ComputedText::new(desc.to_string(), context, &font),
                         key: key.clone(),
                     }
                 }
@@ -149,7 +147,20 @@ impl Menu {
         let page = &self.pages[self.cur_page];
         page.columns
             .iter()
-            .map(|col| col.key_col_width + col.val_col_width + self.separator.width)
+            .map(|col| {
+                col.key_col_width
+                    + col.val_col_width
+                    + self.separator.width
+                    + if col
+                        .items
+                        .iter()
+                        .any(|i| matches!(i.action, Action::Submenu(_)))
+                    {
+                        self.indicator.width
+                    } else {
+                        0.0
+                    }
+            })
             .sum::<f64>()
             + (page.columns.len() - 1) as f64 * config.column_padding()
             + (config.padding() + config.theme.border_width) * 2.0
@@ -203,14 +214,35 @@ impl Menu {
                 text::RenderOptions {
                     x: dx + column.key_col_width,
                     y: dy + page.item_height * (i as f64),
-                    fg_color: config.theme.colors.foreground,
+                    fg_color: config.theme.colors.accent,
                     height: page.item_height,
                 },
             )?;
+
+            // if submenu, render indicator and adjust value comp x position
+            if let Action::Submenu(_) = comp.action {
+                self.indicator.render(
+                    cairo_ctx,
+                    text::RenderOptions {
+                        x: dx + column.key_col_width + self.separator.width,
+                        y: dy + page.item_height * (i as f64),
+                        fg_color: config.theme.colors.accent,
+                        height: page.item_height,
+                    },
+                )?;
+            }
+
             comp.val_comp.render(
                 cairo_ctx,
                 text::RenderOptions {
-                    x: dx + column.key_col_width + self.separator.width,
+                    x: dx
+                        + column.key_col_width
+                        + self.separator.width
+                        + if let Action::Submenu(_) = comp.action {
+                            self.indicator.width
+                        } else {
+                            0.0
+                        },
                     y: dy + page.item_height * (i as f64),
                     fg_color: config.theme.colors.foreground,
                     height: page.item_height,
@@ -227,7 +259,7 @@ impl Menu {
                 column.items.len() as f64 * page.item_height,
             );
             cairo_ctx.set_line_width(1.0);
-            cairo_ctx.stroke().unwrap();
+            cairo_ctx.stroke()?;
         }
 
         Ok(())

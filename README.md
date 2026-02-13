@@ -34,11 +34,11 @@ Example config:
 # Theming
 [theme]
 font = { family = "JetBrainsMono Nerd Font", size = 12 }
-separator = " \uf444 "
-submenu_indicator = " \uf441 "
+separator = " ➜ "
+submenu_indicator = "*"
 border_width = 2
 corner_radius = 10
-padding = 15 # Defaults to corner_r
+padding = 15 # Defaults to corner_radius
 rows_per_column = 5 # No limit by default
 column_padding = 25 # Defaults to padding
 margin_right = 0
@@ -50,6 +50,7 @@ margin_top = 0
 background = "#282828d0"
 foreground = "#fbf1c7"
 border = "#8ec07c"
+accent = "#00bcd4"
 
 [app]
 anchor = "center" # One of center, left, right, top, bottom, bottom-left, top-left, etc.
@@ -62,55 +63,57 @@ inhibit_compositor_keyboard_shortcuts = true
 # Try to guess the correct keyboard layout to use. Default is `false`.
 auto_kbd_layout = true
 
-[[menu]]
+[[menu.main]]
 key = "p"
 desc = "Power"
+submenu = "power"
 
-[[menu.submenu]]
+[[menu.main]]
+key = "l"
+desc = "Laptop Screen"
+submenu = "laptop"
+
+[[menu.power]]
 key = "s"
 desc = "Sleep"
 cmd = "systemctl suspend"
 
-[[menu.submenu]]
+[[menu.power]]
 key = "r"
 desc = "Reboot"
 cmd = "reboot"
 
-[[menu.submenu]]
+[[menu.power]]
 key = "o"
 desc = "Off"
 cmd = "poweroff"
 
-
-[[menu]]
-key = "l"
-desc = "Laptop Screen"
-
-[[menu.submenu]]
+[[menu.laptop]]
 key = "t"
 desc = "Toggle On/Off"
 cmd = "toggle-laptop-display.sh"
 
-[[menu.submenu]]
+[[menu.laptop]]
 key = "s"
 desc = "Scale"
+submenu = "scale"
 
-[[menu.submenu.submenu]]
+[[menu.scale]]
 key = "1"
 desc = "Set Scale to 1.0"
 cmd = "wlr-randr --output eDP-1 --scale 1"
 
-[[menu.submenu.submenu]]
+[[menu.scale]]
 key = "2"
 desc = "Set Scale to 1.1"
 cmd = "wlr-randr --output eDP-1 --scale 1.1"
 
-[[menu.submenu.submenu]]
+[[menu.scale]]
 key = "3"
 desc = "Set Scale to 1.2"
 cmd = "wlr-randr --output eDP-1 --scale 1.2"
 
-[[menu.submenu.submenu]]
+[[menu.scale]]
 key = "4"
 desc = "Set Scale to 1.3"
 cmd = "wlr-randr --output eDP-1 --scale 1.3"

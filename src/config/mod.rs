@@ -6,6 +6,7 @@ mod namespace;
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use smart_default::SmartDefault;
+use std::collections::HashMap;
 
 pub use self::anchor::ConfigAnchor;
 pub use self::entry::Entry;
@@ -22,6 +23,8 @@ pub struct Colors {
     pub foreground: Color,
     #[default(Color::from_rgba_hex(0x8ec07cff))]
     pub border: Color,
+    #[default(Color::from_rgba_hex(0xebdbb2ff))]
+    pub accent: Color,
 }
 
 #[derive(Deserialize, SmartDefault)]
@@ -70,14 +73,18 @@ pub struct App {
 pub struct Config {
     pub app: App,
     pub theme: Theme,
-    pub menu: Vec<Entry>,
+    pub menu: HashMap<String, Vec<Entry>>,
 }
 
 impl Config {
-    pub fn new(name: &str) -> Result<Self> {
+    pub fn load() -> Result<Self> {
         let mut config_path = dirs::config_dir().context("Could not find config directory")?;
         config_path.push("wlr-which-key");
-        config_path.push(name);
+        config_path.push(if cfg!(debug_assertions) {
+            "config-test"
+        } else {
+            "config"
+        });
         config_path.set_extension("toml");
 
         if !config_path.exists() {

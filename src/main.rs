@@ -41,7 +41,7 @@ struct Args {
     ///
     /// For example, to use ~/.config/wlr-which-key/print-srceen.yaml, set this to
     /// "print-srceen". An absolute path can be used too, extension is optional.
-    config: Option<String>,
+    menu: String,
 
     /// Initial key sequence to navigate to a specific submenu on startup.
     ///
@@ -57,8 +57,8 @@ static DEBUG_LAYOUT: LazyLock<bool> =
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    let config = config::Config::new(args.config.as_deref().unwrap_or("config"))?;
-    let mut menu = menu::Menu::new(&config)?;
+    let config = config::Config::load()?;
+    let mut menu = menu::Menu::new(&args.menu, &config)?;
 
     if let Some(initial_keys) = &args.initial_keys
         && let Some(initial_action) = menu.navigate_to_key_sequence(initial_keys)?
