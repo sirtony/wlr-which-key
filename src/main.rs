@@ -34,13 +34,9 @@ use crate::key::ModifierState;
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 struct Args {
-    /// The name of the config file to use.
+    /// The name of the menu to show.
     ///
-    /// By default, $XDG_CONFIG_HOME/wlr-which-key/config.yaml or
-    /// ~/.config/wlr-which-key/config.yaml is used.
-    ///
-    /// For example, to use ~/.config/wlr-which-key/print-srceen.yaml, set this to
-    /// "print-srceen". An absolute path can be used too, extension is optional.
+    /// This should match a menu defined in the configuration file. The application will show an error and exit if the menu is not found.
     menu: String,
 
     /// Initial key sequence to navigate to a specific submenu on startup.

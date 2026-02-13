@@ -61,7 +61,7 @@ impl Menu {
             .menu
             .get(menu)
             .ok_or_else(|| anyhow!("Menu '{menu}' not found in configuration"))?;
-        this.push_page(&context, &menu, config, None)?;
+        this.push_page(&context, menu, config, None)?;
 
         Ok(this)
     }
@@ -98,19 +98,19 @@ impl Menu {
                         cmd: cmd.into(),
                         keep_open: *keep_open,
                     },
-                    key_comp: ComputedText::new(key.to_string(), context, &font),
-                    val_comp: ComputedText::new(desc, context, &font),
+                    key_comp: ComputedText::new(key.to_string(), context, font),
+                    val_comp: ComputedText::new(desc, context, font),
                     key: key.clone(),
                 },
                 config::Entry::Recursive { key, submenu, desc } => {
                     let submenu = config.menu.get(submenu).ok_or_else(|| {
                         anyhow!("Submenu '{}' not found in configuration", submenu)
                     })?;
-                    let new_page = self.push_page(context, &submenu, config, Some(cur_page))?;
+                    let new_page = self.push_page(context, submenu, config, Some(cur_page))?;
                     MenuItem {
                         action: Action::Submenu(new_page),
-                        key_comp: ComputedText::new(key.to_string(), context, &font),
-                        val_comp: ComputedText::new(desc.to_string(), context, &font),
+                        key_comp: ComputedText::new(key.to_string(), context, font),
+                        val_comp: ComputedText::new(desc, context, font),
                         key: key.clone(),
                     }
                 }
