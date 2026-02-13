@@ -34,11 +34,13 @@ pub struct Theme {
     pub margin_bottom: i32,
     pub margin_left: i32,
 
-    #[default(Font::new("monospace 10"))]
     pub font: Font,
 
     #[default(" ➜ ".into())]
     pub separator: String,
+
+    #[default("+".into())]
+    pub submenu_indicator: String,
 
     #[default(4.0)]
     pub border_width: f64,

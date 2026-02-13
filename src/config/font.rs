@@ -1,38 +1,27 @@
-use std::fmt;
-
+use pangocairo::pango;
 use pangocairo::pango::FontDescription;
-use serde::de;
 
-pub struct Font(pub FontDescription);
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Font {
+    pub family: String,
+    pub size: i32,
+}
 
 impl Font {
-    pub fn new(desc: &str) -> Self {
-        Self(FontDescription::from_string(desc))
+    pub fn as_font_desc(&self) -> FontDescription {
+        let mut desc = FontDescription::new();
+        desc.set_family(&self.family);
+        desc.set_size(self.size * pango::SCALE);
+        desc
     }
 }
 
-impl<'de> de::Deserialize<'de> for Font {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: de::Deserializer<'de>,
-    {
-        struct FontVisitor;
-
-        impl de::Visitor<'_> for FontVisitor {
-            type Value = Font;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("font description")
-            }
-
-            fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(Font::new(s))
-            }
+impl Default for Font {
+    fn default() -> Self {
+        Self {
+            family: "monospace".into(),
+            size: 10,
         }
-
-        deserializer.deserialize_str(FontVisitor)
     }
 }

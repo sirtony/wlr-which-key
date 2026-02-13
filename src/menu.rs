@@ -51,7 +51,11 @@ impl Menu {
         let mut this = Self {
             pages: Vec::new(),
             cur_page: 0,
-            separator: ComputedText::new(&config.theme.separator, &context, &config.theme.font.0),
+            separator: ComputedText::new(
+                &config.theme.separator,
+                &context,
+                &config.theme.font.as_font_desc(),
+            ),
         };
 
         this.push_page(&context, &config.menu, config, None)?;
@@ -78,6 +82,7 @@ impl Menu {
             parent,
         });
 
+        let font = &config.theme.font.as_font_desc();
         for (entry_i, entry) in entries.iter().enumerate() {
             let item = match entry {
                 config::Entry::Cmd {
@@ -90,8 +95,8 @@ impl Menu {
                         cmd: cmd.into(),
                         keep_open: *keep_open,
                     },
-                    key_comp: ComputedText::new(key.to_string(), context, &config.theme.font.0),
-                    val_comp: ComputedText::new(desc, context, &config.theme.font.0),
+                    key_comp: ComputedText::new(key.to_string(), context, &font),
+                    val_comp: ComputedText::new(desc, context, &font),
                     key: key.clone(),
                 },
                 config::Entry::Recursive {
@@ -102,11 +107,11 @@ impl Menu {
                     let new_page = self.push_page(context, entries, config, Some(cur_page))?;
                     MenuItem {
                         action: Action::Submenu(new_page),
-                        key_comp: ComputedText::new(key.to_string(), context, &config.theme.font.0),
+                        key_comp: ComputedText::new(key.to_string(), context, &font),
                         val_comp: ComputedText::new(
-                            format!("+{desc}"),
+                            format!("{}{desc}", config.theme.submenu_indicator),
                             context,
-                            &config.theme.font.0,
+                            &font,
                         ),
                         key: key.clone(),
                     }
