@@ -13,6 +13,7 @@ pub struct Key {
 pub struct ModifierState {
     pub mod_ctrl: bool,
     pub mod_alt: bool,
+    pub mod_shift: bool,
     pub mod_mod4: bool,
 }
 
@@ -21,6 +22,7 @@ impl ModifierState {
         Self {
             mod_ctrl: xkb.mod_name_is_active(xkb::MOD_NAME_CTRL, xkb::STATE_MODS_EFFECTIVE),
             mod_alt: xkb.mod_name_is_active(xkb::MOD_NAME_ALT, xkb::STATE_MODS_EFFECTIVE),
+            mod_shift: xkb.mod_name_is_active(xkb::MOD_NAME_SHIFT, xkb::STATE_MODS_EFFECTIVE),
             mod_mod4: xkb.mod_name_is_active(xkb::MOD_NAME_LOGO, xkb::STATE_MODS_EFFECTIVE),
         }
     }
@@ -83,6 +85,8 @@ impl FromStr for SingleKey {
                 modifiers.mod_ctrl = true;
             } else if modifier.eq_ignore_ascii_case("alt") {
                 modifiers.mod_alt = true;
+            } else if modifier.eq_ignore_ascii_case("shift") {
+                modifiers.mod_shift = true;
             } else if modifier.eq_ignore_ascii_case("mod4") || modifier.eq_ignore_ascii_case("logo")
             {
                 modifiers.mod_mod4 = true;
