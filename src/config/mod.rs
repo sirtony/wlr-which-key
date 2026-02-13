@@ -66,8 +66,14 @@ pub struct App {
     #[default(Some(crate::key::SingleKey::from_str("Escape").unwrap().into()))]
     pub quit_key: Option<Key>,
 
+    #[default(Some(crate::key::SingleKey::from_str("BackSpace").unwrap().into()))]
+    pub navigate_to_parent_key: Option<Key>,
+
     #[default(Namespace::new(c"wlr_which_key".to_owned()))]
     pub namespace: Namespace,
+
+    #[default(true)]
+    pub exit_on_unhandled_key: bool,
 
     pub inhibit_compositor_keyboard_shortcuts: bool,
     pub auto_kbd_layout: bool,

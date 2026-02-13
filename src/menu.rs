@@ -292,7 +292,13 @@ impl Menu {
             {
                 return Some(Action::Quit);
             }
-            xkb::Keysym::BackSpace => {
+            kb if config
+                .app
+                .navigate_to_parent_key
+                .as_ref()
+                .map(|k| k.matches(kb, modifiers))
+                .unwrap_or(false) =>
+            {
                 if let Some(parent) = page.parent {
                     return Some(Action::Submenu(parent));
                 }

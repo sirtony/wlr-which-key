@@ -412,6 +412,8 @@ impl KeyboardHandler for State {
                 self.kbd_repeat = Some((Timer::new(repeat.delay, repeat.interval), action.clone()));
             }
             self.handle_action(conn, action);
+        } else if self.config.app.exit_on_unhandled_key {
+            self.handle_action(conn, menu::Action::Quit);
         }
     }
 

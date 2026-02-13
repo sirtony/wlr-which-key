@@ -67,6 +67,13 @@ namespace = "wlr_which_key" # namespace to use for the layer shell surface
 # in this example we'll add 'q' to the list of exit keys
 quit_key = ["Escape", "q"]
 
+# navigating out of a submenu back to the parent is possible with the BackSpace key by default.
+# This option allows you to add more keys that will also perform this action.
+navigate_to_parent_key = ["BackSpace", "Up"]
+
+# if true, pressing a key that isn't bound to any action will exit the app. Default is `true`.
+exit_on_unhandled_key = false
+
 # Permits key bindings that conflict with compositor key bindings.
 # Default is `false`.
 inhibit_compositor_keyboard_shortcuts = true
