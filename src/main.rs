@@ -82,7 +82,8 @@ fn main() -> anyhow::Result<()> {
 
     let wl_compositor: WlCompositor = conn.bind_singleton(4..=6)?;
     let wlr_layer_shell: ZwlrLayerShellV1 = conn.bind_singleton(2)?;
-    let keyboard_shortcuts_inhibit_manager = match config.app.inhibit_compositor_keyboard_shortcuts {
+    let keyboard_shortcuts_inhibit_manager = match config.app.inhibit_compositor_keyboard_shortcuts
+    {
         true => Some(conn.bind_singleton(1)?),
         false => None,
     };
