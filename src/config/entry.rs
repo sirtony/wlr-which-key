@@ -25,8 +25,8 @@ struct RawEntry {
     key: Key,
     desc: String,
     cmd: Option<String>,
-    keep_open: Option<bool>,
     submenu: Option<Vec<Entry>>,
+    keep_open: Option<bool>,
 }
 
 impl TryFrom<RawEntry> for Entry {

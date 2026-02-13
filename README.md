@@ -4,8 +4,6 @@ Keymap manager for wlroots-based compositors. Inspired by [which-key.nvim](https
 
 ## Installation
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/wlr-which-key.svg)](https://repology.org/project/wlr-which-key/versions)
-
 ### From Source
 
 ```sh
@@ -30,126 +28,90 @@ configure those specific commands with (`keep_open: true`).
 
 Example config:
 
-```yaml
+```toml
 # Theming
-font: JetBrainsMono Nerd Font 12
-background: "#282828d0"
-color: "#fbf1c7"
-border: "#8ec07c"
-separator: " ➜ "
-border_width: 2
-corner_r: 10
-padding: 15 # Defaults to corner_r
-rows_per_column: 5 # No limit by default
-column_padding: 25 # Defaults to padding
+[theme]
+font = "JetBrainsMono Nerd Font 12"
+separator = " \uf444 "
+border_width = 2
+corner_radius = 10
+padding = 15 # Defaults to corner_r
+rows_per_column = 5 # No limit by default
+column_padding = 25 # Defaults to padding
+margin_right = 0
+margin_bottom = 0
+margin_left = 0
+margin_top = 0
 
-# Anchor and margin
-anchor: center # One of center, left, right, top, bottom, bottom-left, top-left, etc.
-# Only relevant when anchor is not center
-margin_right: 0
-margin_bottom: 0
-margin_left: 0
-margin_top: 0
+[theme.colors]
+background = "#282828d0"
+foreground = "#fbf1c7"
+border = "#8ec07c"
 
-# namespace to use for the layer shell surface
-namespace: "wlr_which_key"
+[app]
+anchor = "center" # One of center, left, right, top, bottom, bottom-left, top-left, etc.
+namespace = "wlr_which_key" # namespace to use for the layer shell surface
 
 # Permits key bindings that conflict with compositor key bindings.
 # Default is `false`.
-inhibit_compositor_keyboard_shortcuts: true
+inhibit_compositor_keyboard_shortcuts = true
 
 # Try to guess the correct keyboard layout to use. Default is `false`.
-auto_kbd_layout: true
+auto_kbd_layout = true
 
-menu:
-  - key: "p"
-    desc: Power
-    submenu:
-      - key: "s"
-        desc: Sleep
-        cmd: systemctl suspend
-      - key: "r"
-        desc: Reboot
-        cmd: reboot
-      - key: "o"
-        desc: Off
-        cmd: poweroff
-  - key: "l"
-    desc: Laptop Screen
-    submenu:
-      - key: "t"
-        desc: Toggle On/Off
-        cmd: toggle-laptop-display.sh
-      - key: "s"
-        desc: Scale
-        submenu:
-          - key: "1"
-            desc: Set Scale to 1.0
-            cmd: wlr-randr --output eDP-1 --scale 1
-          - key: "2"
-            desc: Set Scale to 1.1
-            cmd: wlr-randr --output eDP-1 --scale 1.1
-          - key: "3"
-            desc: Set Scale to 1.2
-            cmd: wlr-randr --output eDP-1 --scale 1.2
-          - key: "4"
-            desc: Set Scale to 1.3
-            cmd: wlr-randr --output eDP-1 --scale 1.3
+[[menu]]
+key = "p"
+desc = "Power"
+
+[[menu.submenu]]
+key = "s"
+desc = "Sleep"
+cmd = "systemctl suspend"
+
+[[menu.submenu]]
+key = "r"
+desc = "Reboot"
+cmd = "reboot"
+
+[[menu.submenu]]
+key = "o"
+desc = "Off"
+cmd = "poweroff"
+
+
+[[menu]]
+key = "l"
+desc = "Laptop Screen"
+
+[[menu.submenu]]
+key = "t"
+desc = "Toggle On/Off"
+cmd = "toggle-laptop-display.sh"
+
+[[menu.submenu]]
+key = "s"
+desc = "Scale"
+
+[[menu.submenu.submenu]]
+key = "1"
+desc = "Set Scale to 1.0"
+cmd = "wlr-randr --output eDP-1 --scale 1"
+
+[[menu.submenu.submenu]]
+key = "2"
+desc = "Set Scale to 1.1"
+cmd = "wlr-randr --output eDP-1 --scale 1.1"
+
+[[menu.submenu.submenu]]
+key = "3"
+desc = "Set Scale to 1.2"
+cmd = "wlr-randr --output eDP-1 --scale 1.2"
+
+[[menu.submenu.submenu]]
+key = "4"
+desc = "Set Scale to 1.3"
+cmd = "wlr-randr --output eDP-1 --scale 1.3"
 ```
-
-<details>
-  <summary> Old config format (v1.1.0 and earlier) </summary>
-
-  ```yaml
-  # Theming
-  font: JetBrainsMono Nerd Font 12
-  background: "#282828d0"
-  color: "#fbf1c7"
-  border: "#8ec07c"
-  separator: " ➜ "
-  border_width: 2
-  corner_r: 10
-  padding: 15 # Defaults to corner_r
-
-  # Anchor and margin
-  anchor: center # One of center, left, right, top, bottom, bottom-left, top-left, etc.
-  # Only relevant when anchor is not center
-  margin_right: 0
-  margin_bottom: 0
-  margin_left: 0
-  margin_top: 0
-
-  menu:
-    "w":
-      desc: WiFi
-      submenu:
-        "t": { desc: Toggle, cmd: wifi_toggle.sh }
-        "c": { desc: Connections, cmd: kitty --class nmtui-connect nmtui-connect }
-    "p":
-      desc: Power
-      submenu:
-        "s": { desc: Sleep, cmd: systemctl suspend }
-        "r": { desc: Reboot, cmd: reboot }
-        "o": { desc: Off, cmd: poweroff }
-    "t":
-      desc: Theme
-      submenu:
-        "d": { desc: Dark, cmd: dark-theme on }
-        "l": { desc: Light, cmd: dark-theme off }
-        "t": { desc: Toggle, cmd: dark-theme toggle, keep_open: true }
-    "l":
-      desc: Laptop Screen
-      submenu:
-        "t": { desc: Toggle On/Off, cmd: toggle-laptop-display.sh }
-        "s":
-          desc: Scale
-          submenu:
-            "1": { desc: Set Scale to 1.0, cmd: wlr-randr --output eDP-1 --scale 1 }
-            "2": { desc: Set Scale to 1.1, cmd: wlr-randr --output eDP-1 --scale 1.1 }
-            "3": { desc: Set Scale to 1.2, cmd: wlr-randr --output eDP-1 --scale 1.2 }
-            "4": { desc: Set Scale to 1.3, cmd: wlr-randr --output eDP-1 --scale 1.3 }
-  ```
-</details>
 
 ![image](https://user-images.githubusercontent.com/34583604/233025292-af0d5798-1854-4809-b08f-2e8f1a65b3ce.png)
 

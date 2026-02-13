@@ -3,10 +3,6 @@ mod entry;
 mod font;
 mod namespace;
 
-use std::env;
-use std::fs::read_to_string;
-use std::path::PathBuf;
-
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use smart_default::SmartDefault;
@@ -77,19 +73,19 @@ pub struct Config {
 
 impl Config {
     pub fn new(name: &str) -> Result<Self> {
-        let mut config_path = config_dir().context("Cound not find config directory")?;
+        let mut config_path = dirs::config_dir().context("Could not find config directory")?;
         config_path.push("wlr-which-key");
         config_path.push(name);
-        config_path.set_extension("yaml");
+        config_path.set_extension("toml");
 
         if !config_path.exists() {
             bail!("config file not found: {}", config_path.display());
         }
 
-        let config_str = read_to_string(config_path).context("Failed to read configuration")?;
+        let config_str =
+            std::fs::read_to_string(config_path).context("Failed to read configuration")?;
 
-        toml::from_str(&config_str)
-            .context("Failed to deserialize configuration")
+        toml::from_str(&config_str).context("Failed to deserialize configuration")
     }
 
     pub fn padding(&self) -> f64 {
@@ -99,10 +95,4 @@ impl Config {
     pub fn column_padding(&self) -> f64 {
         self.theme.column_padding.unwrap_or_else(|| self.padding())
     }
-}
-
-fn config_dir() -> Option<PathBuf> {
-    env::var_os("XDG_CONFIG_HOME")
-        .map(PathBuf::from)
-        .or_else(|| Some(PathBuf::from(env::var_os("HOME")?).join(".config")))
 }
