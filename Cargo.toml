@@ -9,22 +9,22 @@ license = "GPL-3.0-only"
 authors = ["MaxVerevkin <maxxverr@gmail.com>"]
 
 [dependencies]
-pangocairo = "0.20"
-anyhow = "1"
-libc = "0.2"
-serde = { version = "1", features = ["derive"] }
-wayrs-client = "1.0"
-wayrs-protocols = { version = "0.14", features = [
+pangocairo = "0.21.5"
+anyhow = "1.0.101"
+libc = "0.2.181"
+serde = { version = "1.0.228", features = ["derive"] }
+wayrs-client = "1.3.1"
+wayrs-protocols = { version = "0.14.11", features = [
     "wlr-layer-shell-unstable-v1",
     "keyboard-shortcuts-inhibit-unstable-v1",
 ] }
-wayrs-utils = { version = "0.17", features = [
+wayrs-utils = { version = "0.17.2", features = [
     "shm_alloc",
     "seats",
     "keyboard",
 ] }
-smart-default = "0.7.0"
-clap = { version = "4.3.0", default-features = false, features = [
+smart-default = "0.7.1"
+clap = { version = "4.5.58", default-features = false, features = [
     "std",
     "derive",
     "help",
@@ -33,4 +33,8 @@ clap = { version = "4.3.0", default-features = false, features = [
 toml = "1.0.1"
 
 [profile.release]
+opt-level = 3
+codegen-units = 1
 lto = "fat"
+panic = "abort"
+strip = "symbols"
