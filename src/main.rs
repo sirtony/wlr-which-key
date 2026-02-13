@@ -82,7 +82,7 @@ fn main() -> anyhow::Result<()> {
 
     let wl_compositor: WlCompositor = conn.bind_singleton(4..=6)?;
     let wlr_layer_shell: ZwlrLayerShellV1 = conn.bind_singleton(2)?;
-    let keyboard_shortcuts_inhibit_manager = match config.inhibit_compositor_keyboard_shortcuts {
+    let keyboard_shortcuts_inhibit_manager = match config.app.inhibit_compositor_keyboard_shortcuts {
         true => Some(conn.bind_singleton(1)?),
         false => None,
     };
@@ -100,17 +100,17 @@ fn main() -> anyhow::Result<()> {
         wl_surface,
         None,
         zwlr_layer_shell_v1::Layer::Overlay,
-        config.namespace.0.to_owned(),
+        config.app.namespace.0.to_owned(),
         layer_surface_cb,
     );
-    layer_surface.set_anchor(&mut conn, config.anchor.into());
+    layer_surface.set_anchor(&mut conn, config.app.anchor.into());
     layer_surface.set_size(&mut conn, width, height);
     layer_surface.set_margin(
         &mut conn,
-        config.margin_top,
-        config.margin_right,
-        config.margin_bottom,
-        config.margin_left,
+        config.theme.margin_top,
+        config.theme.margin_right,
+        config.theme.margin_bottom,
+        config.theme.margin_left,
     );
     layer_surface.set_keyboard_interactivity(
         &mut conn,
@@ -267,8 +267,8 @@ impl State {
         cairo_ctx.restore().unwrap();
 
         cairo_ctx.new_sub_path();
-        let half_border = self.config.border_width * 0.5;
-        let r = self.config.corner_r;
+        let half_border = self.config.theme.border_width * 0.5;
+        let r = self.config.theme.corner_radius;
         cairo_ctx.arc(r + half_border, r + half_border, r, PI, 3.0 * FRAC_PI_2);
         cairo_ctx.arc(
             width_f - r - half_border,
@@ -292,10 +292,10 @@ impl State {
             PI,
         );
         cairo_ctx.close_path();
-        self.config.background.apply(&cairo_ctx);
+        self.config.theme.colors.background.apply(&cairo_ctx);
         cairo_ctx.fill_preserve().unwrap();
-        self.config.border.apply(&cairo_ctx);
-        cairo_ctx.set_line_width(self.config.border_width);
+        self.config.theme.colors.border.apply(&cairo_ctx);
+        cairo_ctx.set_line_width(self.config.theme.border_width);
         cairo_ctx.stroke().unwrap();
 
         // draw our menu
@@ -389,7 +389,7 @@ impl KeyboardHandler for State {
         let modifiers = ModifierState::from_xkb_state(&event.xkb_state);
         let action = if let Some(action) = self.menu.get_action(modifiers, event.keysym) {
             Some(action)
-        } else if self.config.auto_kbd_layout {
+        } else if self.config.app.auto_kbd_layout {
             let mask = XkbMaskState::new(&event.xkb_state);
             let mut action = None;
             // Try each layout

@@ -12,9 +12,7 @@ authors = ["MaxVerevkin <maxxverr@gmail.com>"]
 pangocairo = "0.20"
 anyhow = "1"
 libc = "0.2"
-indexmap = { version = "2.0", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
-serde_yaml = "0.9"
 wayrs-client = "1.0"
 wayrs-protocols = { version = "0.14", features = [
     "wlr-layer-shell-unstable-v1",
@@ -32,6 +30,7 @@ clap = { version = "4.3.0", default-features = false, features = [
     "help",
     "usage",
 ] }
+toml = "1.0.1"
 
 [profile.release]
 lto = "fat"
